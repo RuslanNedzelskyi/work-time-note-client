@@ -1,14 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { MasterPage } from './components/master.page';
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <MasterPage />
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-reportWebVitals();
