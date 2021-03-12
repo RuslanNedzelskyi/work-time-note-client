@@ -48,10 +48,10 @@ const DialogTitle = withStyles(styles)((props: DialogTitleProps) => {
 interface IProps {
     isOpen: boolean;
     handleClose: () => void;
-    createNewTimeNote: () => void;
+    manageTimeNote: () => void;
     IsError: boolean;
-    newTimeNote: TimeNote;
-    changeNewTimeNote: (field: string, value: any) => void;
+    timeNote: TimeNote;
+    changeTimeNote: (field: string, value: any) => void;
 }
 
 export const CreateTimeNoteModal: React.FC<IProps> = (props) => {
@@ -67,9 +67,9 @@ export const CreateTimeNoteModal: React.FC<IProps> = (props) => {
                     <form className={classes.form} autoComplete="off">
                         <TextField className={classes.inputName} required id="standard-required" label="Name"
                             onChange={(event: any) => {
-                                props.changeNewTimeNote('name', event.target.value);
+                                props.changeTimeNote('name', event.target.value);
                             }}
-                            defaultValue={props.newTimeNote.name}
+                            defaultValue={props.timeNote.name}
                         />
                         <TextField
                             id="datetime-local"
@@ -80,10 +80,10 @@ export const CreateTimeNoteModal: React.FC<IProps> = (props) => {
                                 shrink: true,
                             }}
                             name='Start'
-                            defaultValue={props.newTimeNote.start}
+                            defaultValue={props.timeNote.start}
                             required
                             onChange={(event: any) => {
-                                props.changeNewTimeNote('start', event.target.value);
+                                props.changeTimeNote('start', event.target.value);
                             }}
                         />
                         <TextField
@@ -94,10 +94,10 @@ export const CreateTimeNoteModal: React.FC<IProps> = (props) => {
                             InputLabelProps={{
                                 shrink: true,
                             }}
-                            defaultValue={props.newTimeNote.end}
+                            defaultValue={props.timeNote.end}
                             required
                             onChange={(event: any) => {
-                                props.changeNewTimeNote('end', event.target.value);
+                                props.changeTimeNote('end', event.target.value);
                             }}
                         />
                         <TextField
@@ -107,10 +107,10 @@ export const CreateTimeNoteModal: React.FC<IProps> = (props) => {
                             InputLabelProps={{
                                 shrink: true,
                             }}
-                            defaultValue={props.newTimeNote.rate}
+                            defaultValue={props.timeNote.rate}
                             className={classes.number}
                             onChange={(event: any) => {
-                                props.changeNewTimeNote('rate', event.target.value);
+                                props.changeTimeNote('rate', event.target.value);
                             }}
                         />
 
@@ -124,7 +124,7 @@ export const CreateTimeNoteModal: React.FC<IProps> = (props) => {
                 </DialogContent>
                 <DialogActions>
                     <Button autoFocus onClick={() => {
-                        props.createNewTimeNote();
+                        props.manageTimeNote();
                     }} color="primary">
                         Save
                     </Button>

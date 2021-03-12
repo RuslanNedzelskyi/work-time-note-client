@@ -6,45 +6,24 @@ import { TimeNotesGrid } from "./time.notes.grid";
 import { CreateTimeNoteModal } from "./create.time.note.modal";
 import { TimeNote } from "../entities/time.note";
 import { API } from "../actions/api.constants";
+import ReactNotification from 'react-notifications-component'
+import { store } from 'react-notifications-component';
 
 export const MasterPage: React.FC = () => {
     const classes = useStyles();
     const [isOpen, setOpen] = useState(false);
     const [IsError, setIsError] = useState(false);
-    const [newTimeNote, setNewTimeNote] = useState(new TimeNote());
+    const [updatedTimeNote, setUpdatedTimeNote] = useState(new TimeNote());
+    const [timeNotes, setTimeNotes] = useState([] as TimeNote[]);
 
-    const [timeNotes, setTimeNotes] = useState([]);
-
-    const handleClickOpen = () => {
+    const handleClickOpenModal = () => {
         setIsError(false);
         setOpen(true);
     };
-    const handleClose = () => {
+    const handleCloseModal = () => {
         setOpen(false);
+        setUpdatedTimeNote(new TimeNote());
     };
-
-    const createNewTimeNote = () => {
-        if (!newTimeNote.name || !newTimeNote.start || !newTimeNote.end || newTimeNote.rate <= 0) {
-            setIsError(true);
-        } else {
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newTimeNote)
-            };
-            fetch(API.TimeNoteEndPoints.API_POST_NEW_TIME_NOTE, requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    setOpen(false);
-                    setNewTimeNote(new TimeNote());
-                    setTimeNotes(data.body);
-                });
-        }
-    }
-
-    const changeNewTimeNote = (field: string, value: any) => {
-        setNewTimeNote({ ...newTimeNote, [field]: value });
-    }
 
     useEffect(() => {
         fetch(API.TimeNoteEndPoints.API_GET_ALL)
@@ -54,40 +33,146 @@ export const MasterPage: React.FC = () => {
             });
     }, []);
 
+    const manageTimeNote = () => {
+        if (!updatedTimeNote.name || !updatedTimeNote.start || !updatedTimeNote.end || updatedTimeNote.rate <= 0) {
+            setIsError(true);
+        } else {
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedTimeNote)
+            };
+
+            if (updatedTimeNote.id > 0) {
+                fetch(API.TimeNoteEndPoints.API_POST_UPDATE_TIME_NOTE, requestOptions)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.statusCode === 400) {
+                            store.addNotification({
+                                title: "Fail",
+                                message: data.message,
+                                type: "danger",
+                                insert: "bottom",
+                                container: "bottom-right",
+                                animationIn: ["animate__animated", "animate__fadeIn"],
+                                animationOut: ["animate__animated", "animate__fadeOut"],
+                                dismiss: {
+                                    duration: 5000,
+                                    onScreen: true
+                                }
+                            });
+                            setOpen(false);
+                            setUpdatedTimeNote(new TimeNote());
+                        } else {
+                            setOpen(false);
+                            setUpdatedTimeNote(new TimeNote());
+                            setTimeNotes(data.body);
+                        }
+                    });
+            } else {
+                fetch(API.TimeNoteEndPoints.API_POST_NEW_TIME_NOTE, requestOptions)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.statusCode === 400) {
+                            store.addNotification({
+                                title: "Fail",
+                                message: data.message,
+                                type: "danger",
+                                insert: "bottom",
+                                container: "bottom-right",
+                                animationIn: ["animate__animated", "animate__fadeIn"],
+                                animationOut: ["animate__animated", "animate__fadeOut"],
+                                dismiss: {
+                                    duration: 5000,
+                                    onScreen: true
+                                }
+                            });
+                            setOpen(false);
+                            setUpdatedTimeNote(new TimeNote());
+                        } else {
+                            setOpen(false);
+                            setUpdatedTimeNote(new TimeNote());
+                            setTimeNotes(data.body);
+                        }
+                    });
+            }
+        }
+    }
+
+    const onEditClick = (id: any) => {
+        const updatedTimeNote = timeNotes.find(x => x.id === id);
+
+        if (updatedTimeNote) {
+            setOpen(true);
+            setUpdatedTimeNote(updatedTimeNote);
+        }
+    }
+
+    const onRemove = (id: any) => {
+        const removedTimeNote = timeNotes.find(x => x.id === id);
+
+        if (removedTimeNote) {
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            };
+            fetch(API.TimeNoteEndPoints.API_POST_REMOVE_TIME_NOTE + removedTimeNote.netId, requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    setOpen(false);
+                    setUpdatedTimeNote(new TimeNote());
+                    setTimeNotes(data.body);
+                });
+        }
+    }
+
+    const changeTimeNote = (field: string, value: any) => {
+        setUpdatedTimeNote({ ...updatedTimeNote, [field]: value });
+    }
+
     return (
-        <div className={classes.root}>
-            <CssBaseline />
-            <AppBar position="fixed" className={classes.appBar}>
-                <Toolbar className={classes.toolBar}>
-                    <Typography className={classes.typography} variant="h6" noWrap>
-                        Work Time Note
+        <div>
+            <div className={classes.root}>
+                <CssBaseline />
+                <AppBar position="fixed" className={classes.appBar}>
+                    <Toolbar className={classes.toolBar}>
+                        <Typography className={classes.typography} variant="h6" noWrap>
+                            Work Time Note
                         </Typography>
-                    <Button variant="contained" color="primary" className={classes.createButton} onClick={handleClickOpen}>
-                        Create
+                        <Button variant="contained" color="primary" className={classes.createButton} onClick={handleClickOpenModal}>
+                            Create
                     </Button>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                className={classes.drawer}
-                variant="permanent"
-                classes={{
-                    paper: classes.drawerPaper,
-                }}
-                anchor="left"
-            >
-                <div className={classes.toolbar} />
-                <Divider />
-                <List>
-                    <ListItem button>
-                        <ListItemIcon><TimerIcon /></ListItemIcon>
-                        <ListItemText primary={'Time note'} />
-                    </ListItem>
-                </List>
-            </Drawer>
-            <main className={classes.content}>
-                <TimeNotesGrid timeNotes={timeNotes} />
-            </main>
-            <CreateTimeNoteModal newTimeNote={newTimeNote} changeNewTimeNote={changeNewTimeNote} isOpen={isOpen} handleClose={handleClose} createNewTimeNote={createNewTimeNote} IsError={IsError} />
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    className={classes.drawer}
+                    variant="permanent"
+                    classes={{
+                        paper: classes.drawerPaper,
+                    }}
+                    anchor="left"
+                >
+                    <div className={classes.toolbar} />
+                    <Divider />
+                    <List>
+                        <ListItem button>
+                            <ListItemIcon><TimerIcon /></ListItemIcon>
+                            <ListItemText primary={'Time note'} />
+                        </ListItem>
+                    </List>
+                </Drawer>
+                <main className={classes.content}>
+                    <TimeNotesGrid timeNotes={timeNotes ? timeNotes : []} onEdit={onEditClick} onRemove={onRemove} />
+                </main>
+                <CreateTimeNoteModal
+                    timeNote={updatedTimeNote}
+                    manageTimeNote={manageTimeNote}
+                    isOpen={isOpen}
+                    handleClose={handleCloseModal}
+                    IsError={IsError}
+                    changeTimeNote={changeTimeNote} />
+            </div>
+            <ReactNotification />
         </div>
     );
 }
