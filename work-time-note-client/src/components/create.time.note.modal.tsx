@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { createStyles, makeStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -72,7 +72,6 @@ export const CreateTimeNoteModal: React.FC<IProps> = (props) => {
                             defaultValue={props.timeNote.name}
                         />
                         <TextField
-                            id="datetime-local"
                             label="Start"
                             type="datetime-local"
                             className={classes.dateTimeField}
@@ -87,7 +86,6 @@ export const CreateTimeNoteModal: React.FC<IProps> = (props) => {
                             }}
                         />
                         <TextField
-                            id="datetime-local"
                             label="End"
                             type="datetime-local"
                             className={classes.dateTimeField}
@@ -100,8 +98,8 @@ export const CreateTimeNoteModal: React.FC<IProps> = (props) => {
                                 props.changeTimeNote('end', event.target.value);
                             }}
                         />
+
                         <TextField
-                            id="standard-number"
                             label="Rate"
                             type="number"
                             InputLabelProps={{
